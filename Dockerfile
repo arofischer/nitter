@@ -1,19 +1,23 @@
 FROM ubuntu:22.04
 
-# 安裝系統相依套件與 nim/nimble
-RUN apt-get update && apt-get install -y \
-  curl git build-essential nim
+# 安裝基本工具與建置依賴
+RUN apt-get update && \
+    apt-get install -y curl git build-essential gcc g++ && \
+    curl https://nim-lang.org/choosenim/init.sh -sSf | sh -s -- -y
 
-# 設定工作目錄
+# 設定 PATH，讓 nim 和 nimble 可以執行
+ENV PATH="/root/.nimble/bin:/root/.choosenim:/root/.choosenim/current/bin:$PATH"
+
+# 建立工作目錄
 WORKDIR /app
 
-# 複製 repo 原始碼
+# 複製所有原始碼進入容器
 COPY . .
 
-# 編譯 Nitter
+# 編譯
 RUN nimble build -y
 
-# 啟用埠號
+# 開放埠
 EXPOSE 8080
 
 # 啟動服務
